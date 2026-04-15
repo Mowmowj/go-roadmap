@@ -81,6 +81,27 @@ cd 15-ecosystem && go run main.go
 cd 18-database && go run main.go
 ```
 
+## 🌐 在线文档网站
+
+项目包含一个静态文档网站，自动从 Go 源代码生成带语法高亮的在线阅读页面。
+
+**在线访问**：推送到 GitHub 后，通过 GitHub Pages 自动部署，访问 `https://<username>.github.io/go-roadmap/`
+
+**本地运行**：
+
+```bash
+# 1. 生成静态网站（需要 Python 3）
+python3 scripts/build-site.py
+
+# 2. 启动本地预览服务器
+cd site && python3 -m http.server 8080
+
+# 3. 打开浏览器访问
+open http://localhost:8080
+```
+
+> 每次修改 Go 源代码后，重新运行 `python3 scripts/build-site.py` 即可更新网站内容。
+
 ## 📖 学习建议
 
 1. **按顺序学习**：章节之间有依赖关系，建议从 01 开始

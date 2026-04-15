@@ -19,3 +19,4 @@ site/
 15-ecosystem/15-ecosystem
 16-toolchain/16-toolchain
 17-advanced/17-advanced
+/.playwright-mcp

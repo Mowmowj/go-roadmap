@@ -29,6 +29,7 @@ CHAPTERS = [
     {"dir": "15-ecosystem",             "title": "生态系统",            "emoji": "🌍", "level": "中级", "tag": "推荐"},
     {"dir": "16-toolchain",             "title": "工具链",              "emoji": "🔧", "level": "中级", "tag": "推荐"},
     {"dir": "17-advanced",              "title": "高级主题",            "emoji": "🎯", "level": "高级", "tag": "可选"},
+    {"dir": "18-database",              "title": "数据库实战",          "emoji": "🗄️", "level": "中级", "tag": "推荐"},
 ]
 
 PHASES = [
@@ -38,6 +39,7 @@ PHASES = [
     {"name": "标准库与工程实践",   "range": (13, 14),"color": "#f59e0b", "level": "🟡 中级"},
     {"name": "生态与工具",         "range": (15, 16),"color": "#f59e0b", "level": "🟡 中级"},
     {"name": "高级主题",           "range": (17, 17),"color": "#ef4444", "level": "🔴 高级"},
+    {"name": "数据库实战",         "range": (18, 18),"color": "#f59e0b", "level": "🟡 中级"},
 ]
 
 def get_level_color(level):
@@ -80,16 +82,23 @@ def generate_html_page(chapter, files, chapters, root):
     next_ch = chapters[idx + 1] if idx < len(chapters) - 1 else None
     
     code_blocks = ""
-    for f in files:
+    for fi, f in enumerate(files):
         escaped = html.escape(f["content"])
+        block_id = f"code-block-{fi}"
         code_blocks += f"""
-        <div class="file-block">
+        <div class="file-block" id="{block_id}">
             <div class="file-header">
                 <span class="file-icon">📄</span>
                 <span class="file-name">{html.escape(f['name'])}</span>
-                <button class="copy-btn" onclick="copyCode(this)" title="复制代码">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
-                </button>
+                <div class="file-actions">
+                    <button class="action-btn run-btn" onclick="openPlayground('{block_id}')" title="在编辑器中打开并运行">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+                        <span>运行</span>
+                    </button>
+                    <button class="action-btn copy-btn" onclick="copyCode(this)" title="复制代码">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+                    </button>
+                </div>
             </div>
             <pre><code class="language-go">{escaped}</code></pre>
         </div>
@@ -122,12 +131,14 @@ def generate_html_page(chapter, files, chapters, root):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{chapter["emoji"]} {chapter["title"]} - Go 学习路线图</title>
     <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" id="hljs-theme" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script src="assets/theme.js"></script>
 </head>
 <body>
     <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="切换侧边栏">☰</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="切换主题" aria-label="切换亮/暗主题">🌙</button>
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a href="index.html" class="logo">
@@ -155,22 +166,169 @@ def generate_html_page(chapter, files, chapters, root):
             {next_link}
         </div>
     </main>
+
+    <!-- Go Playground Modal -->
+    <div class="playground-overlay" id="playgroundOverlay" onclick="closePlayground(event)">
+        <div class="playground-modal">
+            <div class="playground-header">
+                <span class="playground-title">▶ Go Playground</span>
+                <div class="playground-actions">
+                    <button class="pg-btn pg-btn-run" onclick="runCode()" id="runBtn">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+                        运行
+                    </button>
+                    <button class="pg-btn pg-btn-fmt" onclick="fmtCode()">格式化</button>
+                    <button class="pg-btn pg-btn-reset" onclick="resetCode()">重置</button>
+                    <button class="pg-btn pg-btn-share" onclick="shareCode()">在 Go Playground 打开</button>
+                    <button class="pg-btn pg-btn-close" onclick="closePlayground()" title="关闭">✕</button>
+                </div>
+            </div>
+            <div class="playground-body">
+                <textarea id="playgroundEditor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+                <div class="playground-output" id="playgroundOutput">
+                    <div class="output-placeholder">点击「运行」执行代码，输出将显示在此处</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         hljs.highlightAll();
+        initTheme();
+
+        let originalCode = '';
+
         function copyCode(btn) {{
             const code = btn.closest('.file-block').querySelector('code').textContent;
             navigator.clipboard.writeText(code).then(() => {{
+                const orig = btn.innerHTML;
                 btn.innerHTML = '✓';
-                setTimeout(() => {{
-                    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>';
-                }}, 1500);
+                setTimeout(() => {{ btn.innerHTML = orig; }}, 1500);
             }});
         }}
+
         function toggleSidebar() {{
             document.getElementById('sidebar').classList.toggle('open');
         }}
+
         document.querySelector('.content').addEventListener('click', () => {{
             document.getElementById('sidebar').classList.remove('open');
+        }});
+
+        function openPlayground(blockId) {{
+            const block = document.getElementById(blockId);
+            const code = block.querySelector('code').textContent;
+            originalCode = code;
+            document.getElementById('playgroundEditor').value = code;
+            document.getElementById('playgroundOutput').innerHTML = '<div class="output-placeholder">点击「运行」执行代码，输出将显示在此处</div>';
+            document.getElementById('playgroundOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('playgroundEditor').focus();
+        }}
+
+        function closePlayground(e) {{
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('playgroundOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }}
+
+        function resetCode() {{
+            document.getElementById('playgroundEditor').value = originalCode;
+            document.getElementById('playgroundOutput').innerHTML = '<div class="output-placeholder">代码已重置</div>';
+        }}
+
+        async function runCode() {{
+            const btn = document.getElementById('runBtn');
+            const output = document.getElementById('playgroundOutput');
+            const code = document.getElementById('playgroundEditor').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 运行中...';
+            output.innerHTML = '<div class="output-running">⏳ 编译运行中...</div>';
+
+            try {{
+                const resp = await fetch('https://play.golang.org/compile', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/x-www-form-urlencoded' }},
+                    body: 'version=2&body=' + encodeURIComponent(code) + '&withVet=true'
+                }});
+                const data = await resp.json();
+
+                if (data.Errors) {{
+                    output.innerHTML = '<div class="output-error"><strong>编译错误:</strong>\\n' + escapeHtml(data.Errors) + '</div>';
+                }} else {{
+                    let events = '';
+                    if (data.Events) {{
+                        data.Events.forEach(ev => {{
+                            if (ev.Kind === 'stderr') {{
+                                events += '<span class="output-stderr">' + escapeHtml(ev.Message) + '</span>';
+                            }} else {{
+                                events += escapeHtml(ev.Message);
+                            }}
+                        }});
+                    }}
+                    if (!events) events = '<span class="output-empty">(无输出)</span>';
+                    output.innerHTML = '<div class="output-success"><strong>输出:</strong>\\n' + events + '</div>';
+                    if (data.VetErrors) {{
+                        output.innerHTML += '<div class="output-warn"><strong>Vet 警告:</strong>\\n' + escapeHtml(data.VetErrors) + '</div>';
+                    }}
+                }}
+            }} catch (err) {{
+                output.innerHTML = '<div class="output-error-fallback">'
+                    + '<p><strong>无法连接 Go Playground API</strong></p>'
+                    + '<p>本地开发环境(http)可能被浏览器阻止跨域请求。</p>'
+                    + '<p>部署到 GitHub Pages (https) 后即可正常运行。</p>'
+                    + '<button class="pg-btn pg-btn-share" onclick="shareCode()" style="margin-top:8px">→ 在 Go Playground 中打开并运行</button>'
+                    + '</div>';
+            }}
+
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg> 运行';
+        }}
+
+        async function fmtCode() {{
+            const editor = document.getElementById('playgroundEditor');
+            const output = document.getElementById('playgroundOutput');
+            const code = editor.value;
+            try {{
+                const resp = await fetch('https://play.golang.org/fmt', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/x-www-form-urlencoded' }},
+                    body: 'body=' + encodeURIComponent(code) + '&imports=true'
+                }});
+                const data = await resp.json();
+                if (data.Error) {{
+                    output.innerHTML = '<div class="output-error"><strong>格式化错误:</strong>\\n' + escapeHtml(data.Error) + '</div>';
+                }} else {{
+                    editor.value = data.Body;
+                    output.innerHTML = '<div class="output-success">✅ 代码已格式化</div>';
+                }}
+            }} catch (err) {{
+                output.innerHTML = '<div class="output-error-fallback">'
+                    + '<p>格式化需要网络连接到 Go Playground。</p>'
+                    + '<button class="pg-btn pg-btn-share" onclick="shareCode()" style="margin-top:8px">→ 在 Go Playground 中打开</button>'
+                    + '</div>';
+            }}
+        }}
+
+        function shareCode() {{
+            const code = document.getElementById('playgroundEditor').value;
+            const encoded = encodeURIComponent(code);
+            window.open('https://go.dev/play/#code=' + encoded, '_blank');
+        }}
+
+        function escapeHtml(str) {{
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }}
+
+        document.addEventListener('keydown', (e) => {{
+            if (e.key === 'Escape') closePlayground();
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {{
+                if (document.getElementById('playgroundOverlay').classList.contains('active')) {{
+                    e.preventDefault();
+                    runCode();
+                }}
+            }}
         }});
     </script>
 </body>
@@ -231,9 +389,11 @@ def generate_index(chapters):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go 语言完整学习路线图</title>
     <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/theme.js"></script>
 </head>
 <body>
     <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="切换侧边栏">☰</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="切换主题" aria-label="切换亮/暗主题">🌙</button>
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a href="index.html" class="logo">
@@ -309,6 +469,7 @@ cd 14-testing && go test -v ./...</code></pre>
         </div>
     </main>
     <script>
+        initTheme();
         function toggleSidebar() {{
             document.getElementById('sidebar').classList.toggle('open');
         }}
@@ -322,10 +483,11 @@ cd 14-testing && go test -v ./...</code></pre>
 
 def generate_css():
     return """/* ============================================
-   Go Roadmap - Dark Theme Site Styles
+   Go Roadmap - Theme + Playground Site Styles
    ============================================ */
 
-:root {
+/* Dark theme (default) */
+:root, [data-theme="dark"] {
     --bg-primary: #0d1117;
     --bg-secondary: #161b22;
     --bg-tertiary: #21262d;
@@ -341,6 +503,41 @@ def generate_css():
     --red: #ef4444;
     --sidebar-width: 280px;
     --header-height: 60px;
+    --editor-bg: #0d1117;
+    --editor-text: #e6edf3;
+    --shadow: rgba(0,0,0,0.4);
+}
+
+/* Light theme */
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f8fa;
+    --bg-tertiary: #e8ecf0;
+    --bg-hover: #d0d7de;
+    --border: #d0d7de;
+    --text-primary: #1f2328;
+    --text-secondary: #656d76;
+    --text-muted: #8b949e;
+    --accent: #0969da;
+    --accent-subtle: #218bff;
+    --editor-bg: #f6f8fa;
+    --editor-text: #1f2328;
+    --shadow: rgba(0,0,0,0.12);
+}
+
+[data-theme="light"] .hero h1 {
+    background: linear-gradient(135deg, #0969da, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+[data-theme="light"] .hero-badge.green { background: rgba(16,185,129,0.1); }
+[data-theme="light"] .hero-badge.yellow { background: rgba(245,158,11,0.1); }
+[data-theme="light"] .hero-badge.red { background: rgba(239,68,68,0.1); }
+
+[data-theme="light"] .nav-item.active {
+    background: rgba(9, 105, 218, 0.08);
 }
 
 * {
@@ -459,6 +656,32 @@ body {
     cursor: pointer;
 }
 
+/* Theme toggle */
+.theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 200;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.theme-toggle:hover {
+    background: var(--bg-tertiary);
+    transform: scale(1.1);
+}
+
 /* Main Content */
 .content {
     flex: 1;
@@ -516,8 +739,35 @@ body {
 .file-name { font-family: 'SF Mono', 'Fira Code', monospace; }
 .file-icon { font-size: 14px; }
 
-.copy-btn {
+.file-actions {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.action-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+
+.run-btn { color: var(--green); }
+.run-btn:hover { background: rgba(16,185,129,0.15); color: var(--green); }
+
+.copy-btn {
+    margin-left: 0;
     background: none;
     border: none;
     color: var(--text-muted);
@@ -846,7 +1096,158 @@ body {
 @media (max-width: 480px) {
     .tips-grid { grid-template-columns: 1fr; }
     .hero-badges { flex-direction: column; align-items: center; }
+    .playground-modal { width: 100%; height: 100%; border-radius: 0; }
+    .playground-header { flex-wrap: wrap; }
+    .playground-actions { width: 100%; justify-content: flex-end; }
 }
+
+/* ============================================
+   Playground Modal
+   ============================================ */
+
+.playground-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.playground-overlay.active {
+    display: flex;
+}
+
+.playground-modal {
+    width: 90vw;
+    max-width: 1000px;
+    height: 80vh;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px var(--shadow);
+}
+
+.playground-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+}
+
+.playground-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.playground-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.pg-btn {
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.pg-btn:hover { background: var(--bg-hover); }
+.pg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pg-btn-run {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+}
+.pg-btn-run:hover { opacity: 0.9; background: var(--green); }
+
+.pg-btn-close {
+    border: none;
+    font-size: 16px;
+    padding: 4px 8px;
+    color: var(--text-muted);
+}
+.pg-btn-close:hover { color: var(--red); background: transparent; }
+
+.playground-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#playgroundEditor {
+    flex: 1;
+    resize: none;
+    border: none;
+    outline: none;
+    padding: 16px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    tab-size: 4;
+    background: var(--editor-bg);
+    color: var(--editor-text);
+    min-height: 200px;
+    border-bottom: 1px solid var(--border);
+}
+
+.playground-output {
+    min-height: 120px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 12px 16px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    background: var(--bg-primary);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.output-placeholder { color: var(--text-muted); }
+.output-running { color: var(--yellow); }
+.output-success { color: var(--text-primary); }
+.output-error { color: var(--red); white-space: pre-wrap; }
+.output-warn { color: var(--yellow); white-space: pre-wrap; margin-top: 8px; }
+.output-stderr { color: var(--yellow); }
+.output-empty { color: var(--text-muted); font-style: italic; }
+.output-error-fallback { color: var(--text-secondary); }
+.output-error-fallback p { margin-bottom: 4px; }
+.output-error-fallback strong { color: var(--yellow); }
+
+.spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
@@ -881,6 +1282,11 @@ def build_site(root_dir, output_dir):
     # 写入 CSS
     with open(os.path.join(assets_dir, "style.css"), "w", encoding="utf-8") as f:
         f.write(generate_css())
+    
+    # 复制 theme.js
+    theme_js_src = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "theme.js")
+    if os.path.exists(theme_js_src):
+        shutil.copy2(theme_js_src, os.path.join(assets_dir, "theme.js"))
     
     # 生成首页
     with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as f:

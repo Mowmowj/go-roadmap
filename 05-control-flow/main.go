@@ -81,6 +81,23 @@ func main() {
 	// 📚 概念：Go 的 switch 不需要 break
 	// 每个 case 自动 break，不会 fallthrough
 	// 如果需要穿透，使用 fallthrough 关键字
+	//⚠️ fallthrough 是直接执行下一个 case 的代码，
+	//不会再判断下一个 case 的条件是否成立。
+	myscore := 95
+
+	switch {
+	case myscore >= 90:
+		fmt.Println("优秀")
+		fallthrough
+	case myscore >= 60:
+		fmt.Println("及格")
+	default:
+		fmt.Println("不及格")
+	}
+	// 输出：
+	// 优秀
+	// 及格
+	// 但不会输出不及格，因为没有 fallthrough
 
 	// switch 初始化语句
 	switch n := 15; {

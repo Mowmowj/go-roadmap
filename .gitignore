@@ -1,0 +1,21 @@
+# Build output
+site/
+
+# Go binaries
+01-getting-started/01-getting-started
+02-variables-constants/02-variables-constants
+03-data-types/03-data-types
+04-composite-types/04-composite-types
+05-control-flow/05-control-flow
+06-functions/06-functions
+07-pointers/07-pointers
+08-methods-interfaces/08-methods-interfaces
+09-generics/09-generics
+10-error-handling/10-error-handling
+11-modules-packages/11-modules-packages
+12-concurrency/12-concurrency
+13-standard-library/13-standard-library
+14-testing/14-testing
+15-ecosystem/15-ecosystem
+16-toolchain/16-toolchain
+17-advanced/17-advanced

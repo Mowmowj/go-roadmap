@@ -51,7 +51,12 @@
 16-toolchain/           go 命令、代码质量、Lint、交叉编译、pprof 性能分析
 ```
 
-### 第六阶段：高级主题 (🔴 高级 💡 可选)
+### 第六阶段：数据库实战 (🟡 中级 📌 推荐)
+```
+18-database/            PostgreSQL 连接池、CRUD、事务、预处理、JOIN、JSONB、Repository 模式
+```
+
+### 第七阶段：高级主题 (🔴 高级 💡 可选)
 ```
 17-advanced/            反射、unsafe 包、编译器指令、go:embed、内存模型、插件系统
 ```
@@ -70,6 +75,10 @@ cd 14-testing && go test -v ./...
 # 运行 REST API 示例（在 15-ecosystem 中）
 # 取消 startServer() 调用的注释后运行
 cd 15-ecosystem && go run main.go
+
+# 运行 PostgreSQL 数据库实战（需要 PostgreSQL）
+# 先启动 PG: docker run --name go-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=go_roadmap -p 5432:5432 -d postgres:16-alpine
+cd 18-database && go run main.go
 ```
 
 ## 📖 学习建议
@@ -85,7 +94,7 @@ cd 15-ecosystem && go run main.go
 - Go 语言所有核心语法和数据结构
 - 并发编程模型（Goroutine、Channel、sync）
 - 测试驱动开发（TDD）和基准测试
-- Web API 开发和数据库操作
+- Web API 开发和 PostgreSQL 数据库操作
 - Go 工具链和代码质量管理
 - 性能分析和优化技巧
 - 反射、unsafe 等高级主题

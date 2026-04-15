@@ -69,6 +69,7 @@ func main() {
 	// uint16: 0 ~ 65535
 	// uint32: 0 ~ 4294967295
 	// uint64: 0 ~ 18446744073709551615
+	// uint: 不能表示负数，范围是 0 和正整数，因此它是“无符号整数”，不是严格数学意义上的“正整数”。
 
 	var u8 uint8 = 255
 	var u16 uint16 = 65535
@@ -112,10 +113,27 @@ func main() {
 	fmt.Printf("0.1 + 0.2 = %.20f (不是精确的 0.3!)\n", result)
 	fmt.Printf("0.1 + 0.2 == 0.3? %t\n", result == 0.3)
 
-	// 正确比较浮点数的方式
-	epsilon := 1e-9
+	// 📚 注意：这里在 Go 中常常会输出 true，
+	// 因为 0.1、0.2、0.3 是无类型常量，编译器会以较高精度计算。
+	// 但在真实业务里，如果参与运算的是 float32/float64 变量，
+	// 就更容易出现精度误差，因此不要过度依赖 == 直接比较。
+	var a64 float64 = 0.1
+	var b64 float64 = 0.2
+	var c64f float64 = 0.3
+	fmt.Printf("变量比较: a64+b64 == c64f ? %t\n", a64+b64 == c64f)
+
+	// 正确比较浮点数的方式（工程实践）
+	const epsilon = 1e-9 // 允许的微小误差范围
 	fmt.Printf("差值 < epsilon? %t (正确比较方式)\n",
-		math.Abs(result-0.3) < epsilon)
+		math.Abs((a64+b64)-c64f) < epsilon)
+
+	// 💰 最佳实践：金额不要用 float 直接计算
+	// 金额建议用最小货币单位的整数表示，例如“分”。
+	priceFen := 1999 // 19.99 元
+	discountFen := 200
+	finalFen := priceFen - discountFen
+	fmt.Printf("金额计算(分): %d - %d = %d (即 %.2f 元)\n",
+		priceFen, discountFen, finalFen, float64(finalFen)/100)
 
 	// 特殊浮点值
 	fmt.Println("\n特殊浮点值:")

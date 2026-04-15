@@ -119,6 +119,11 @@ func main() {
 	x, w := 10, 20 // ✅ 因为 w 是新变量
 	fmt.Printf("x=%d, w=%d\n", x, w)
 
+	// 📚 概念：短声明里的“至少一个新变量”
+	// := 表示“声明并赋值”，所以左边不能全部都是旧变量。
+	// 在 x, w := 10, 20 里：x 是旧变量，w 是新变量，因此写法合法。
+	// 执行后 x 会被更新为新值，w 则是第一次声明。
+
 	// ========================================================================
 	// 3. 零值 (Zero Values) - Go 的重要特性
 	// ========================================================================
@@ -137,6 +142,11 @@ func main() {
 	var zeroMap map[string]int    // nil
 	var zeroFunc func()           // nil
 	var zeroInterface interface{} // nil
+
+	// 📚 概念：nil 与 map 类型
+	// nil 表示“还没有指向任何有效对象 / 还没有初始化”。
+	// map[string]int 可以读成：键是 string，值是 int 的字典/哈希表。
+	// 指针、slice、map、func、interface 这些引用型数据的零值通常都是 nil。
 
 	fmt.Printf("int:       %v\n", zeroInt)
 	fmt.Printf("float64:   %v\n", zeroFloat)
@@ -161,15 +171,21 @@ func main() {
 	// Pi = 3.0  // ❌ 编译错误！
 
 	// 无类型常量 - Go 的特殊特性
+	// 变量要占内存，编译器必须马上知道它是什么具体类型。
+	// 而常量只是一个固定值，可以先不指定具体类型，等使用时再适配。
+	// 所以 const 常量在 Go 中往往更灵活。
 	const untypedInt = 42         // 无类型整数常量
 	const untypedFloat = 3.14     // 无类型浮点常量
 	const untypedString = "hello" // 无类型字符串常量
 
 	// 无类型常量可以赋给兼容的类型
+	// float32 占 4 字节，精度约 6~7 位有效数字；float64 占 8 字节，精度更高。
+	// Go 中像 3.14 这样的浮点字面量，通常会默认按 float64 处理。
 	var i int = untypedInt
 	var f float64 = untypedInt // 42 可以作为 float64
 	var f2 float32 = untypedFloat
 	fmt.Printf("i=%d, f=%f, f2=%f\n", i, f, f2)
+	fmt.Printf("f 的类型=%T, f2 的类型=%T\n", f, f2)
 
 	// ========================================================================
 	// 5. iota 示例
@@ -178,6 +194,11 @@ func main() {
 
 	fmt.Printf("星期: Sun=%d, Mon=%d, Fri=%d, Sat=%d\n",
 		Sunday, Monday, Friday, Saturday)
+
+	// 📚 概念：位运算
+	// |（按位或）：只要某一位有 1，结果就是 1，常用于“组合权限”。
+	// &（按位与）：两边都为 1，结果才是 1，常用于“检查权限”。
+	// 例如：001 | 010 = 011，001 & 011 = 001。
 
 	// 权限位运算
 	fmt.Printf("\n权限位: Read=%d(%b), Write=%d(%b), Exec=%d(%b)\n",
@@ -255,3 +276,23 @@ func doSomethingElse() error {
 // 2. 创建一个权限系统：Admin/Editor/Viewer 三种角色
 // 3. 故意制造一个 shadowing 陷阱，然后修复它
 // ============================================================================
+
+
+const (
+	Spring = iota
+	Summer
+	Autumn
+	Winter
+)
+
+const (
+	Admin  = 1 << iota // 1 (001)
+	Editor              // 2 (010)
+	Viewer              // 4 (100)
+)
+
+
+
+
+
+
